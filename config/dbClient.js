@@ -1,22 +1,25 @@
 import { MongoClient } from "mongodb";
+import mongoose, { mongo } from "mongoose";
 
 class dbClient {
-  constructor() {
-    const queryString = `mongodb+srv://${process.env.USER_DB}:${process.env.PASSWORD_DB}@${process.env.SERVER_DB}/?retryWrites=true&w=majority&appName=ClusterAdopcion`;
-    this.client = new MongoClient(queryString);
-    this.connect();
+  constructor(){
+    this.connectDB();
   }
 
-  async connect() {
+  async connectDB() {
+    const queryString = `mongodb+srv://${process.env.USER_DB}:${process.env.PASSWORD_DB}@${process.env.SERVER_DB}/adopcion?retryWrites=true&w=majority`;
+    await mongoose.connect(queryString);
+    console.log("conectado a la base de datos")
+  }
+
+  async closeConnection(){
     try {
-      await this.client.connect();
-      this.db = this.client.db('adopcion'); 
-      console.log('Connected to MongoDB');
+      await mongoose.disconnect();
+      console.log("Conexion cerrada")
     } catch (error) {
-      console.error(error);
+      console.error("Error al cerrar conexion", error)  
     }
   }
-
 }
 
 export default new dbClient();
