@@ -1,9 +1,9 @@
+import { generateToken } from '../helpers/autenticacion.js';
 import usuariosModelo from '../models/usuarios.js';
 import bcrypt from 'bcrypt';
 
 class usuariosController {
   constructor() {
-
   }
 
   async register(req, res) {
@@ -29,9 +29,20 @@ class usuariosController {
 
     const claveValida = await bcrypt.compare(clave, usuarioExiste.clave);
     if(!claveValida) return res.status(400).json({error: 'La calve no es valida'})
+
+    const token = generateToken(email);
     
-    return res.status(200).json({message: 'Bienvenido usuario'})
+    return res.status(200).json({message: 'Bienvenido usuario', token});
   }
+
+   async profile(req, res) {
+      try {
+        const data = await usuariosModelo.getOneByEmail({email: req.emailConectado});
+        res.status(201).json(data)
+      } catch (error) {
+        res.status(500).send(error)
+      }
+    }
 }
 
 export default new usuariosController();
